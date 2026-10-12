@@ -1,0 +1,118 @@
+{
+  "KPE": {
+    "Tools": {
+      "Studio": "Particle studio",
+      "Place": "Place particles (click; Shift snaps to the grid)",
+      "Mold": "Mold particles: drag a particle's outline by hand (click one to pick it)",
+      "Emitter": "Place emitters (click; right-click one to remove it)",
+      "Cast": "Cast the current effect (click; uses the selected token and your targets)",
+      "Clear": "Remove all particles, auras and emitters from this scene",
+      "Manager": "Scene particles: manage every particle on this scene",
+      "Walls": "Effect walls: walls of fire, chains, ice… along any path"
+    },
+    "Settings": {
+      "PlayersCanCast": {
+        "Name": "Players can cast effects",
+        "Hint": "Let players open the studio, cast effects from their own tokens and spawn particles. The GM's client creates the tokens for them."
+      },
+      "Animate": {
+        "Name": "Animate particles",
+        "Hint": "Particle tokens and auras animate live (swirling, pulsing, flickering). Turn off to show their still images only."
+      },
+      "Fps": {
+        "Name": "Particle animation frame rate",
+        "Hint": "How many times per second live particle textures are redrawn. Lower it on slow machines."
+      },
+      "Quality": {
+        "Name": "Particle texture quality",
+        "Hint": "Resolution of live particle textures.",
+        "Low": "Low",
+        "Normal": "Normal",
+        "High": "High"
+      },
+      "Emitters": {
+        "Name": "Show particle emitters",
+        "Hint": "Sparks, embers, dust, trails and bursts. Turn off on slow machines."
+      }
+    },
+    "Keybindings": {
+      "OpenStudio": "Open the particle studio"
+    },
+    "Info": {
+      "Saved": "Saved \"{name}\".",
+      "Baked": "Image saved: {path}",
+      "ClickToPlace": "Click on the map to place it, as many times as you like. When you're done, press Escape or pick another tool: the window comes back.",
+      "ClickToCast": "Click on the map where it should appear. Press Escape or pick another tool when you're done.",
+      "LookApplied": "New look applied to {count} particle(s).",
+      "DrawWall": "Draw the wall's path on the map. Finish a pen path with Enter or a double-click; the effect appears as you draw.",
+      "Mold": "Click a particle to shape it. Drag its points, pull an edge to make a new corner, or drag inside to move the outline. Double-click a point to make it sharp or round, double-click an edge to add a point, right-click a point to remove it.",
+      "Sealed": "The seal follows a path: drag its points with the animator's edit tool (double-click the path to add a point, a point to make it a corner). Its look, and whether it blocks movement, are in Effect walls.",
+      "ShapeMotion": "Shape the path on the map with the animator's tools, then keep it with “Save as template” (or “Update template” for your own) in the animator panel: the effect will use it.",
+      "MotionLinked": "The effect now moves along “{name}”. Save the effect to keep it."
+    },
+    "Warn": {
+      "SelectTokens": "Select one or more tokens first.",
+      "NeedsTarget": "This effect flies at targets: target one or more tokens (T) first.",
+      "NeedsCaster": "Select the token that casts it first.",
+      "NeedsPoint": "Use the Cast tool and click where it should appear.",
+      "NeedsAnimator": "This effect moves along an animator template: enable Kostis's Actual Animator.",
+      "CannotModify": "Some tokens were skipped because you can't change them.",
+      "WallsNeedAnimator": "Effect walls are drawn with Kostis's Actual Animator: enable it first.",
+      "PickPath": "Pick a path first (draw one with the animator, or use Draw).",
+      "NoParticleActor": "Couldn't set up the shared \"Particles\" actor that lets particles have owners (check the console)."
+    },
+    "Error": {
+      "NoHub": "Kostis's Particle Effects needs the Kostis's Flying Paths module. Enable it in Manage Modules.",
+      "Mold": "Couldn't save the particle's new shape (see the console, F12)."
+    },
+    "Undo": {
+      "Place": "Place {count} particle(s)",
+      "Remove": "Remove {count} particle(s)",
+      "Cast": "Cast {name}",
+      "AddAura": "Add aura “{name}”",
+      "RemoveAuras": "Remove auras",
+      "AddEmitter": "Add emitter “{name}”",
+      "RemoveEmitters": "Remove emitters",
+      "PlaceEmitter": "Place emitter “{name}”",
+      "RemoveEmitter": "Remove a fixed emitter",
+      "Clear": "Clear particle effects",
+      "EditAura": "Change an aura",
+      "EditToken": "Change {field}",
+      "Look": "Change the look of {count} particle(s)",
+      "Lifetime": "Change lifetime",
+      "Duplicate": "Duplicate {count} particle(s)",
+      "Hide": "Hide {count}",
+      "Show": "Show {count}",
+      "Delete": "Delete {count}",
+      "CreateWall": "Create wall “{name}”",
+      "ChangeWall": "Change wall “{name}”",
+      "RestartWall": "Restart a wall",
+      "RemoveWall": "Remove wall “{name}”",
+      "Control": "Change who controls {count} particle(s)",
+      "Mold": "Reshape {name}",
+      "MoldMove": "Move the outline of {name}",
+      "MoldCorner": "Turn a point of {name}",
+      "MoldPoint": "Add a point to {name}",
+      "MoldRemove": "Remove a point of {name}",
+      "Seal": "Turn {name} into a seal",
+      "PathCorners": "Make the corners of {name} sharp",
+      "PathCurves": "Round the path of {name}"
+    },
+    "Manager": {
+      "Field": {
+        "size": "size",
+        "alpha": "opacity",
+        "elevation": "elevation",
+        "rotation": "rotation",
+        "lockRotation": "upright",
+        "disposition": "disposition",
+        "hidden": "visibility",
+        "name": "name",
+        "lightRadius": "light radius",
+        "lightAlpha": "light strength",
+        "lightColor": "light colour",
+        "lightAnimation": "light animation"
+      }
+    }
+  }
+}

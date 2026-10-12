@@ -1,0 +1,19 @@
+{{!-- Molding a particle's outline by hand, shared by the studio and the manager. Context: o (outlineToolsContext) --}}
+<h4 class="kfp-subhead">Outline</h4>
+<div class="kpe-mold">
+  <button type="button" class="kfp-btn kfp-small {{#if o.molding}}kpe-on{{/if}}" data-action="moldToggle" data-tooltip="{{#if o.molding}}Hide the points{{else}}Show the outline's points on the preview and shape it by hand{{/if}}"><i class="fa-solid fa-hand" inert></i> Shape by hand</button>
+  <button type="button" class="kfp-btn kfp-small" data-action="moldDraw" data-tooltip="Draw the outline on the preview in one stroke"><i class="fa-solid fa-signature" inert></i> Draw it</button>
+  <select name="moldShape" data-tooltip="Start from a shape">
+    <option value="">Start from a shape…</option>
+    {{#each o.shapes}}<option value="{{value}}">{{label}}</option>{{/each}}
+  </select>
+</div>
+<div class="kpe-mold">
+  <button type="button" class="kfp-btn kfp-small" data-action="moldSharp" {{#unless o.molded}}disabled{{/unless}} data-tooltip="Make every point a sharp corner"><i class="fa-solid fa-draw-polygon" inert></i> Corners</button>
+  <button type="button" class="kfp-btn kfp-small" data-action="moldRound" {{#unless o.molded}}disabled{{/unless}} data-tooltip="Make every point round"><i class="fa-solid fa-bezier-curve" inert></i> Curves</button>
+  <button type="button" class="kfp-btn kfp-small" data-action="moldMirror" {{#unless o.molded}}disabled{{/unless}} data-tooltip="Copy the left half onto the right"><i class="fa-solid fa-arrows-left-right" inert></i> Mirror</button>
+  <button type="button" class="kfp-btn kfp-small" data-action="moldReset" {{#unless o.molded}}disabled{{/unless}} data-tooltip="Back to the plain circle"><i class="fa-regular fa-circle" inert></i> Circle</button>
+</div>
+{{#if o.molding}}
+<p class="kfp-hint">Drag a point to move it, an edge to pull out a new corner, or the inside to move the whole outline. Double-click a point to make it sharp or round, double-click an edge to add a point, right-click a point to remove it.</p>
+{{/if}}

@@ -1,0 +1,274 @@
+<div class="kpm-root">
+  <header class="kpm-top">
+    <div class="kpe-search">
+      <i class="fa-solid fa-magnifying-glass" inert></i>
+      <input type="search" name="search" value="{{search}}" placeholder="Search particles…" autocomplete="off" spellcheck="false">
+    </div>
+    <nav class="kpm-filters">
+      {{#each filters}}
+      <button type="button" class="kpm-chip {{#if active}}active{{/if}}" data-action="pickFilter" data-filter="{{key}}" data-tooltip="{{label}}">
+        <i class="{{icon}}" inert></i> <span>{{label}}</span> <span class="kpe-count">{{count}}</span>
+      </button>
+      {{/each}}
+    </nav>
+    <div class="kpm-top-actions">
+      <button type="button" class="kfp-btn kfp-small" data-action="undo" {{#unless undo}}disabled{{/unless}} data-tooltip="{{#if undo}}Undo: {{undo}} (Ctrl+Z){{else}}Nothing to undo{{/if}}"><i class="fa-solid fa-rotate-left" inert></i> Undo</button>
+      {{#if isGM}}
+      <button type="button" class="kfp-btn kfp-small" data-action="placeNew" data-tooltip="Place new particles on the map"><i class="fa-solid fa-plus" inert></i> Place</button>
+      {{/if}}
+      <button type="button" class="kfp-btn kfp-small" data-action="openStudio" data-tooltip="Particle studio"><i class="fa-solid fa-wand-sparkles" inert></i> Studio</button>
+      {{#if isGM}}
+      <button type="button" class="kfp-btn kfp-small kfp-danger" data-action="clearScene" data-tooltip="Remove every particle, aura and emitter from this scene"><i class="fa-solid fa-broom" inert></i></button>
+      {{/if}}
+    </div>
+  </header>
+
+  {{#unless scene}}
+  <p class="kfp-hint kpm-pad">Open a scene first.</p>
+  {{else}}
+  <div class="kpm-body">
+    <section class="kpm-listwrap">
+      <div class="kpm-listhead">
+        <span class="kfp-muted">{{total}} on this scene{{#if sceneEmitters}} · {{sceneEmitters}} fixed emitter{{#unless (eq sceneEmitters 1)}}s{{/unless}}{{/if}}</span>
+        <button type="button" class="kfp-btn kfp-small" data-action="selectAll" data-tooltip="Select everything listed">All</button>
+        <button type="button" class="kfp-btn kfp-small" data-action="selectNone">None</button>
+      </div>
+      <label class="kpm-sync kfp-muted"><input type="checkbox" name="syncCanvas" {{#if syncCanvas}}checked{{/if}}> Select on the map too</label>
+      <div class="kpm-list">
+        {{#each rows}}
+        <button type="button" class="kpm-row {{#if selected}}active{{/if}}" data-action="pickRow" data-token="{{id}}" data-search="{{search}}" {{#if hidden2}}hidden{{/if}}
+          data-tooltip="Click to select · Ctrl/Shift-click to add">
+          <span class="kpm-thumb">{{#if thumb}}<img src="{{thumb}}" alt="">{{/if}}</span>
+          <span class="kpm-row-main">
+            <strong>{{name}}</strong>
+            <span class="kfp-muted">{{kind}} · {{size}} sq{{#if life}} · <i class="fa-solid fa-hourglass-half" inert></i> {{life}}{{/if}}</span>
+          </span>
+          <span class="kpm-icons">
+            {{#if moving}}<i class="fa-solid {{#if paused}}fa-pause{{else}}fa-route{{/if}}" data-tooltip="{{anim}}" inert></i>{{/if}}
+            {{#if auras}}<i class="fa-solid fa-sun" inert></i><small>{{auras}}</small>{{/if}}
+            {{#if emitters}}<i class="fa-solid fa-fire-flame-curved" inert></i><small>{{emitters}}</small>{{/if}}
+            {{#if hidden}}<i class="fa-solid fa-eye-slash" inert></i>{{/if}}
+          </span>
+        </button>
+        {{else}}
+        <div class="kpe-empty kfp-muted">
+          <i class="fa-solid fa-circle-nodes" inert></i>
+          <p>No particles here yet. Place some from the studio or with the Place tool.</p>
+        </div>
+        {{/each}}
+      </div>
+    </section>
+
+    <section class="kpe-editor">
+      {{#if count}}
+      <div class="kpm-editor-head">
+        <div class="kpe-preview kpm-preview" data-preview></div>
+        <div class="kpm-title">
+          <strong>{{#if many}}{{count}} selected{{else}}{{primary.name}}{{/if}}</strong>
+          <span class="kfp-muted">{{#if many}}Changes apply to all of them{{else}}{{#if look}}{{look.draft.name}}{{/if}}{{/if}}</span>
+          <div class="kpm-sel-actions">
+            <button type="button" class="kfp-icon-btn" data-action="controlSelected" data-tooltip="Select on the map"><i class="fa-solid fa-hand-pointer" inert></i></button>
+            <button type="button" class="kfp-icon-btn" data-action="panTo" data-tooltip="Show on the map"><i class="fa-solid fa-crosshairs" inert></i></button>
+            {{#if isGM}}<button type="button" class="kfp-icon-btn" data-action="duplicate" data-tooltip="Duplicate"><i class="fa-solid fa-clone" inert></i></button>{{/if}}
+            <button type="button" class="kfp-icon-btn" data-action="toggleHidden" data-tooltip="Hide / show"><i class="fa-solid fa-eye-slash" inert></i></button>
+            <button type="button" class="kfp-icon-btn kfp-danger" data-action="deleteSelected" data-tooltip="Delete (Ctrl+Z brings it back)"><i class="fa-solid fa-trash" inert></i></button>
+          </div>
+        </div>
+      </div>
+      <nav class="kfp-tabs kpm-tabs">
+        {{#each tabs}}
+        <button type="button" class="{{#if active}}active{{/if}}" data-action="switchTab" data-tab="{{key}}" {{#if disabled}}disabled{{/if}}><i class="{{icon}}" inert></i> {{label}}</button>
+        {{/each}}
+      </nav>
+
+      <div class="kpe-editor-scroll">
+        {{#if (eq tab "look")}}
+        {{#if look}}
+        <div class="kpm-apply {{#if look.dirty}}kpm-dirty{{/if}}">
+          <button type="button" class="kfp-btn kfp-primary" data-action="applyLook" {{#unless look.dirty}}disabled{{/unless}} data-tooltip="Make this look permanent on {{look.particles}} particle(s), for everyone"><i class="fa-solid fa-check" inert></i> Apply</button>
+          <button type="button" class="kfp-btn" data-action="revertLook" {{#unless look.dirty}}disabled{{/unless}} data-tooltip="Forget these changes"><i class="fa-solid fa-xmark" inert></i> Revert</button>
+          {{#if isGM}}<button type="button" class="kfp-btn" data-action="saveLook" data-tooltip="Save this look to your particle library"><i class="fa-solid fa-bookmark" inert></i></button>{{/if}}
+          <label class="kpe-check"><input type="checkbox" name="livePreview" {{#if liveDot}}checked{{/if}}> live on the map</label>
+        </div>
+        <div class="kfp-field"><label>Start from</label>
+          <div class="kpm-inline">
+            <select name="lookPreset">{{#each look.presets}}<option value="{{value}}">{{label}}</option>{{/each}}</select>
+            <button type="button" class="kfp-btn kfp-small" data-action="loadPreset">Use</button>
+          </div>
+        </div>
+        <div class="kfp-field"><label>Kind</label>
+          <select name="kind">{{#each look.kinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Colours</label>
+          <div class="kpe-colors">
+            {{#each look.palette}}<input type="color" name="palette.{{i}}" value="{{value}}">{{/each}}
+            <button type="button" class="kfp-icon-btn" data-action="randomSeed" data-tooltip="New random pattern"><i class="fa-solid fa-dice" inert></i></button>
+          </div>
+        </div>
+        <div class="kpe-palettes">
+          {{#each look.palettes}}<button type="button" class="kpe-palette" data-action="usePalette" data-palette="{{key}}" data-tooltip="{{key}}" style="background: {{gradient}}" aria-label="{{key}}"></button>{{/each}}
+        </div>
+        {{> "modules/kostis-particle-effects/templates/outline-tools.hbs" o=look.outline}}
+        <p class="kfp-hint">On the map, the Mold tool <i class="fa-solid fa-hand" inert></i> of the Kostis's Flying Paths controls shapes a particle the same way, right where it stands.</p>
+        {{#if look.canSeal}}
+        <h4 class="kfp-subhead">Bigger than a token</h4>
+        <p class="kfp-hint">A rune circle can become a seal: the same glyphs, rings and star along a path you drag over a whole room (its outline too). As an effect wall it can also block movement.</p>
+        <div class="kpe-mold"><button type="button" class="kfp-btn kfp-small" data-action="makeSeal" data-tooltip="Replace this particle with a seal on the same spot, then reshape its path (Ctrl+Z brings the particle back)"><i class="fa-solid fa-dharmachakra" inert></i> Make it a seal</button></div>
+        {{/if}}
+        {{#each look.groups}}
+        <h4 class="kfp-subhead">{{label}}</h4>
+        {{#each fields}}
+        <div class="kfp-field"><label>{{label}}</label>
+          <div class="kfp-range"><input type="range" name="{{key}}" min="{{min}}" max="{{max}}" step="{{step}}" value="{{value}}"><output>{{text}}</output></div>
+        </div>
+        {{/each}}
+        {{/each}}
+        <div class="kfp-field"><label>Light colour</label><label class="kpe-check"><input type="checkbox" name="lightFollows" checked> follows the look's colours when applied</label></div>
+        {{/if}}
+        {{/if}}
+
+        {{#if (eq tab "token")}}
+        {{#unless many}}
+        <div class="kfp-field"><label>Name</label><input type="text" name="token.name" value="{{token.name}}"></div>
+        {{/unless}}
+        <div class="kfp-field"><label>Size (squares)</label><input type="number" name="token.size" min="0.1" max="100" step="0.05" value="{{token.size}}"></div>
+        <div class="kfp-field"><label>Opacity</label>
+          <div class="kfp-range"><input type="range" name="token.alpha" min="0" max="1" step="0.05" value="{{token.alpha}}"><output>{{token.alpha}}</output></div>
+        </div>
+        <div class="kfp-field"><label>Elevation</label><input type="number" name="token.elevation" step="1" value="{{token.elevation}}"></div>
+        <div class="kfp-field"><label>Rotation (°)</label><input type="number" name="token.rotation" min="0" max="360" step="1" value="{{token.rotation}}"></div>
+        <div class="kfp-field"><label>Keep upright</label><label class="kpe-check"><input type="checkbox" name="token.lockRotation" {{#if token.lockRotation}}checked{{/if}}> the image doesn't turn with the token</label></div>
+        <div class="kfp-field"><label>Disposition</label>
+          <select name="token.disposition">{{#each token.dispositions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        {{#if isGM}}
+        <div class="kfp-field"><label>Hidden</label><label class="kpe-check"><input type="checkbox" name="token.hidden" {{#if token.hidden}}checked{{/if}}> only the GM sees it</label></div>
+        {{/if}}
+        {{#if control}}
+        <h4 class="kfp-subhead">Controlled by</h4>
+        <div class="kfp-field"><label>Who</label>
+          <select name="control.mode" data-tooltip="Who can move, change and remove it (like a token's owners)">{{#each control.modes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        {{#if control.chosen}}
+        <div class="kfp-field"><label>Players</label>
+          <div class="kpm-inline kpm-wrap">
+            {{#each control.players}}<label class="kpe-check"><input type="checkbox" name="control.user.{{id}}" {{#if checked}}checked{{/if}}> {{name}}</label>{{else}}<span class="kfp-muted">No players in this world yet.</span>{{/each}}
+          </div>
+        </div>
+        {{/if}}
+        {{#if control.mixed}}<p class="kfp-hint">The selected particles have different owners; a change applies to all of them.</p>{{/if}}
+        {{/if}}
+        <h4 class="kfp-subhead">Light</h4>
+        <div class="kfp-field"><label>Radius (squares)</label><input type="number" name="token.lightRadius" min="0" max="60" step="0.5" value="{{token.lightRadius}}"></div>
+        <div class="kfp-field"><label>Strength</label>
+          <div class="kfp-range"><input type="range" name="token.lightAlpha" min="0" max="1" step="0.05" value="{{token.lightAlpha}}"><output>{{token.lightAlpha}}</output></div>
+        </div>
+        <div class="kfp-field"><label>Colour</label><input type="color" name="token.lightColor" value="{{token.lightColor}}"></div>
+        <div class="kfp-field"><label>Animation</label>
+          <select name="token.lightAnimation">{{#each token.lightAnimations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        {{/if}}
+
+        {{#if (eq tab "attach")}}
+        <h4 class="kfp-subhead">Auras {{#if many}}<span class="kfp-muted">(of the first selected)</span>{{/if}}</h4>
+        {{#each attach.auras}}
+        <div class="kpm-attach" data-aura="{{id}}">
+          <span class="kpm-thumb kpm-thumb-sm">{{#if thumb}}<img src="{{thumb}}" alt="">{{/if}}</span>
+          <strong>{{name}}</strong>
+          <label data-tooltip="Size around the token">× <input type="number" name="aura.{{id}}.scale" min="0.2" max="10" step="0.1" value="{{scale}}"></label>
+          <label data-tooltip="Spin (°/s)"><i class="fa-solid fa-rotate" inert></i> <input type="number" name="aura.{{id}}.spin" min="-720" max="720" step="5" value="{{spin}}"></label>
+          <label data-tooltip="Drawn under the token"><input type="checkbox" name="aura.{{id}}.below" {{#if below}}checked{{/if}}> under</label>
+          <button type="button" class="kfp-icon-btn kfp-danger" data-action="removeAura" data-tooltip="Remove"><i class="fa-solid fa-xmark" inert></i></button>
+        </div>
+        {{else}}
+        <p class="kfp-hint">No auras.</p>
+        {{/each}}
+        <div class="kpm-inline">
+          <select name="newAura">{{#each attach.auraOptions}}<option value="{{value}}">{{label}}</option>{{/each}}</select>
+          <button type="button" class="kfp-btn kfp-small" data-action="addAura"><i class="fa-solid fa-plus" inert></i> Add aura{{#if many}} to all{{/if}}</button>
+        </div>
+
+        <h4 class="kfp-subhead">Emitters {{#if many}}<span class="kfp-muted">(of the first selected)</span>{{/if}}</h4>
+        {{#each attach.emitters}}
+        <div class="kpm-attach" data-emitter="{{id}}">
+          <i class="fa-solid fa-fire-flame-curved" inert></i>
+          <strong>{{name}}</strong>
+          <button type="button" class="kfp-icon-btn kfp-danger" data-action="removeEmitter" data-tooltip="Remove"><i class="fa-solid fa-xmark" inert></i></button>
+        </div>
+        {{else}}
+        <p class="kfp-hint">No emitters.</p>
+        {{/each}}
+        <div class="kpm-inline">
+          <select name="newEmitter">{{#each attach.emitterOptions}}<option value="{{value}}">{{label}}</option>{{/each}}</select>
+          <button type="button" class="kfp-btn kfp-small" data-action="addEmitter"><i class="fa-solid fa-plus" inert></i> Add emitter{{#if many}} to all{{/if}}</button>
+        </div>
+        {{/if}}
+
+        {{#if (eq tab "motion")}}
+        {{#unless animator}}
+        <p class="kfp-hint"><i class="fa-solid fa-triangle-exclamation" inert></i> Enable Kostis's Actual Animator to move particles along paths.</p>
+        {{else}}
+        <div class="kpm-status">
+          {{#if motion.playing}}
+          <i class="fa-solid {{#if motion.paused}}fa-pause{{else}}fa-route{{/if}}" inert></i>
+          <div><strong>{{motion.anim}}</strong><span class="kfp-muted">{{#if motion.paused}}paused{{else}}playing{{/if}}{{#if motion.progress}} · {{motion.progress}}%{{/if}}{{#if motion.copies}} · {{motion.copies}} copies{{/if}}</span></div>
+          {{else}}
+          <i class="fa-solid fa-circle-stop" inert></i><div><strong>Not moving</strong><span class="kfp-muted">Give it a path below.</span></div>
+          {{/if}}
+        </div>
+        {{#if motion.playing}}
+        <div class="kpm-actions kpm-inline">
+          <button type="button" class="kfp-btn" data-action="motionPause"><i class="fa-solid {{#if motion.paused}}fa-play{{else}}fa-pause{{/if}}" inert></i> {{#if motion.paused}}Resume{{else}}Pause{{/if}}</button>
+          <button type="button" class="kfp-btn" data-action="motionStop" data-tooltip="Stop where it is"><i class="fa-solid fa-stop" inert></i> Stop here</button>
+          <button type="button" class="kfp-btn" data-action="motionReturn" data-tooltip="Stop and go back to where it started"><i class="fa-solid fa-rotate-left" inert></i> Stop &amp; return</button>
+          <button type="button" class="kfp-btn" data-action="openAnimator"><i class="fa-solid fa-sliders" inert></i> Animator</button>
+        </div>
+        <div class="kfp-field"><label>Rate ×</label>
+          <div class="kfp-range"><input type="range" name="motionRate" min="0" max="4" step="0.05" value="{{motion.rate}}"><output>{{motion.rate}}</output></div>
+        </div>
+        {{/if}}
+        <h4 class="kfp-subhead">Play a template</h4>
+        <p class="kfp-hint">Attacks fly at the tokens you target (T: {{motion.targets}} now); orbits circle the first one.</p>
+        <div class="kpm-inline">
+          <select name="motion.template">{{#each motion.templates}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+          <button type="button" class="kfp-btn kfp-small kfp-primary" data-action="applyTemplate"><i class="fa-solid fa-play" inert></i> Play</button>
+        </div>
+        {{#if motion.animations.length}}
+        <h4 class="kfp-subhead">Or one of this scene's animations</h4>
+        <div class="kpm-inline">
+          <select name="motion.animation">{{#each motion.animations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+          <button type="button" class="kfp-btn kfp-small" data-action="playAnimation"><i class="fa-solid fa-play" inert></i> Play</button>
+        </div>
+        {{/if}}
+        {{/unless}}
+        {{/if}}
+
+        {{#if (eq tab "life")}}
+        <div class="kpm-status">
+          <i class="fa-solid fa-hourglass-half" inert></i>
+          <div>
+            <strong>{{#if (eq life.mode "timed")}}Disappears in {{life.remaining}} s{{/if}}{{#if (eq life.mode "animation")}}Disappears when its animation ends{{/if}}{{#if (eq life.mode "forever")}}Stays until removed{{/if}}</strong>
+            <span class="kfp-muted">Particles from casts clean themselves up; placed ones stay.</span>
+          </div>
+        </div>
+        <div class="kfp-field"><label>Disappear after (s)</label>
+          <div class="kpm-inline">
+            <input type="number" name="lifeSeconds" min="1" max="36000" step="1" value="{{life.seconds}}">
+            <button type="button" class="kfp-btn kfp-small" data-action="setLifetime" data-mode="timed"><i class="fa-solid fa-hourglass-start" inert></i> Set</button>
+          </div>
+        </div>
+        <div class="kpm-actions kpm-inline">
+          <button type="button" class="kfp-btn" data-action="setLifetime" data-mode="forever"><i class="fa-solid fa-infinity" inert></i> Keep forever</button>
+        </div>
+        {{/if}}
+      </div>
+      {{else}}
+      <div class="kpe-empty kfp-muted">
+        <i class="fa-solid fa-hand-pointer" inert></i>
+        <p>Pick particles on the left (or select them on the map) to edit them.</p>
+      </div>
+      {{/if}}
+    </section>
+  </div>
+  {{/unless}}
+</div>

@@ -1,0 +1,92 @@
+<div class="kpm-root">
+  <header class="kpm-top kpw-top">
+    {{#if animator}}
+    <div class="kpw-new">
+      <select name="new.preset" data-tooltip="Wall style">{{#each presets}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+      <select name="new.tool" data-tooltip="Draw with">{{#each tools}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+      <button type="button" class="kfp-btn kfp-primary kfp-small" data-action="drawNew" data-tooltip="Draw a new wall on the map with the animator's tools"><i class="fa-solid fa-pen-nib" inert></i> Draw</button>
+      <span class="kfp-muted">or on</span>
+      <select name="new.path" data-tooltip="An existing animator path">{{#each paths}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{else}}<option value="">No paths yet</option>{{/each}}</select>
+      <button type="button" class="kfp-btn kfp-small" data-action="attachNew" data-tooltip="Put this effect along that path (an animation's infinity sign, a drawn room…)"><i class="fa-solid fa-link" inert></i> Add</button>
+    </div>
+    {{/if}}
+    <div class="kpm-top-actions">
+      <button type="button" class="kfp-btn kfp-small" data-action="undo" {{#unless undo}}disabled{{/unless}} data-tooltip="{{#if undo}}Undo: {{undo}} (Ctrl+Z){{else}}Nothing to undo{{/if}}"><i class="fa-solid fa-rotate-left" inert></i> Undo</button>
+      <button type="button" class="kfp-btn kfp-small" data-action="openStudio" data-tooltip="Wall presets in the studio"><i class="fa-solid fa-wand-sparkles" inert></i> Presets</button>
+    </div>
+  </header>
+
+  {{#unless scene}}
+  <p class="kfp-hint kpm-pad">Open a scene first.</p>
+  {{else}}
+  {{#unless animator}}
+  <p class="kfp-hint kpm-pad"><i class="fa-solid fa-triangle-exclamation" inert></i> Effect walls follow paths drawn with Kostis's Actual Animator: enable it to draw and show them.</p>
+  {{/unless}}
+  <div class="kpm-body">
+    <section class="kpm-listwrap">
+      <div class="kpm-list kpw-list">
+        {{#each rows}}
+        <button type="button" class="kpm-row kpw-row {{#if selected}}active{{/if}}" data-action="pickRow" data-wall="{{id}}">
+          <span class="kpw-thumb">{{#if thumb}}<img src="{{thumb}}" alt="">{{/if}}</span>
+          <span class="kpm-row-main">
+            <strong>{{name}}</strong>
+            <span class="kfp-muted">{{#if missing}}<i class="fa-solid fa-triangle-exclamation" inert></i> path missing{{else}}on {{path}}{{/if}}</span>
+          </span>
+          <span class="kpm-icons">
+            <i class="{{modeIcon}}" data-tooltip="{{mode}}" inert></i>
+            {{#if blocks}}<i class="fa-solid fa-block-brick" data-tooltip="Blocks {{blocksLabel}}" inert></i>{{/if}}
+            {{#if hidden}}<i class="fa-solid fa-eye-slash" inert></i>{{/if}}
+          </span>
+        </button>
+        {{else}}
+        <div class="kpe-empty kfp-muted">
+          <i class="fa-solid fa-road-barrier" inert></i>
+          <p>No effect walls yet. Pick a style above and press Draw, or put one on an existing animator path.</p>
+        </div>
+        {{/each}}
+      </div>
+    </section>
+
+    <section class="kpe-editor">
+      {{#if wall}}
+      <div class="kpm-editor-head">
+        <div class="kpe-preview kpm-preview" data-preview></div>
+        <div class="kpm-title">
+          <input type="text" name="name" value="{{wall.name}}" class="kpe-name">
+          <span class="kfp-muted">{{#if wall.missing}}<i class="fa-solid fa-triangle-exclamation" inert></i> Its path is gone: pick another below or remove it.{{else}}On “{{wall.path}}”{{#if wall.lengthSq}} · {{wall.lengthSq}} squares{{#if wall.loop}}, a loop{{/if}}{{/if}}{{/if}}</span>
+          <div class="kpm-sel-actions">
+            <button type="button" class="kfp-icon-btn" data-action="editPath" data-tooltip="Reshape the path: drag its points on the map (the animator's edit tool)" {{#if wall.missing}}disabled{{/if}}><i class="fa-solid fa-bezier-curve" inert></i></button>
+            <button type="button" class="kfp-icon-btn" data-action="pathSmooth" data-smooth="0" data-tooltip="Make every point of the path a sharp corner (walls of a room)" {{#if wall.missing}}disabled{{/if}}><i class="fa-solid fa-draw-polygon" inert></i></button>
+            <button type="button" class="kfp-icon-btn" data-action="pathSmooth" data-smooth="1" data-tooltip="Make every point of the path a round curve" {{#if wall.missing}}disabled{{/if}}><i class="fa-regular fa-circle" inert></i></button>
+            <button type="button" class="kfp-icon-btn" data-action="restart" data-tooltip="Start its appearance over"><i class="fa-solid fa-rotate-right" inert></i></button>
+            <button type="button" class="kfp-icon-btn" data-action="toggleHidden" data-tooltip="{{#if wall.hidden}}Show to players{{else}}Hide from players{{/if}}"><i class="fa-solid {{#if wall.hidden}}fa-eye{{else}}fa-eye-slash{{/if}}" inert></i></button>
+            <button type="button" class="kfp-icon-btn kfp-danger" data-action="removeWall" data-tooltip="Remove the wall (keep its path)"><i class="fa-solid fa-trash" inert></i></button>
+            <button type="button" class="kfp-icon-btn kfp-danger" data-action="removeWithPath" data-tooltip="Remove the wall and its path"><i class="fa-solid fa-trash-can-arrow-up" inert></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="kpe-editor-scroll">
+        <div class="kpm-apply {{#if wall.dirty}}kpm-dirty{{/if}}">
+          <button type="button" class="kfp-btn kfp-primary" data-action="apply" {{#unless wall.dirty}}disabled{{/unless}} data-tooltip="Make the changes permanent, for everyone"><i class="fa-solid fa-check" inert></i> Apply</button>
+          <button type="button" class="kfp-btn" data-action="revert" {{#unless wall.dirty}}disabled{{/unless}}><i class="fa-solid fa-xmark" inert></i> Revert</button>
+          <button type="button" class="kfp-btn" data-action="saveAsPreset" data-tooltip="Save this look as your own wall preset"><i class="fa-solid fa-bookmark" inert></i></button>
+          <span class="kfp-muted">Changes show on the map at once (for you) until you apply them.</span>
+        </div>
+        <div class="kfp-field"><label>Start from</label>
+          <div class="kpm-inline">
+            <select name="loadPreset">{{#each presetsForLoad}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+            <button type="button" class="kfp-btn kfp-small" data-action="loadPreset">Use</button>
+          </div>
+        </div>
+        <div class="kfp-field"><label>Path</label>
+          <select name="path">{{#each wall.pathChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        {{> "modules/kostis-particle-effects/templates/wall-editor.hbs" w=wall.w}}
+      </div>
+      {{else}}
+      <div class="kpe-empty kfp-muted"><i class="fa-solid fa-hand-pointer" inert></i><p>Pick a wall on the left.</p></div>
+      {{/if}}
+    </section>
+  </div>
+  {{/unless}}
+</div>

@@ -1,0 +1,216 @@
+<div class="kpe-root">
+  <nav class="kfp-tabs">
+    {{#each tabs}}
+    <button type="button" class="{{#if active}}active{{/if}}" data-action="switchTab" data-tab="{{key}}"><i class="{{icon}}" inert></i> {{label}}</button>
+    {{/each}}
+    <span class="kpe-tabs-info kfp-muted">
+      <i class="fa-solid fa-users" inert></i> {{selected}} selected &nbsp; <i class="fa-solid fa-crosshairs" inert></i> {{targets}} targeted
+    </span>
+    <span class="kpe-tabs-actions">
+      <button type="button" class="kfp-btn kfp-small" data-action="undo" {{#unless undo}}disabled{{/unless}} data-tooltip="{{#if undo}}Undo: {{undo}} (Ctrl+Z){{else}}Nothing to undo{{/if}}"><i class="fa-solid fa-rotate-left" inert></i> Undo</button>
+      <button type="button" class="kfp-btn kfp-small" data-action="openManager" data-tooltip="Every particle on this scene"><i class="fa-solid fa-list-check" inert></i> Scene particles</button>
+    </span>
+  </nav>
+
+  <div class="kpe-body">
+    <aside class="kpe-side">
+      <div class="kpe-search">
+        <i class="fa-solid fa-magnifying-glass" inert></i>
+        <input type="search" name="search" value="{{search}}" placeholder="Search…" autocomplete="off" spellcheck="false">
+      </div>
+      <nav class="kpe-cats">
+        {{#each categories}}
+        <button type="button" class="kpe-cat {{#if active}}active{{/if}}" data-action="pickCategory" data-category="{{key}}">
+          <i class="{{icon}}" inert></i><span>{{label}}</span><span class="kpe-count">{{count}}</span>
+        </button>
+        {{/each}}
+      </nav>
+      {{#if canSave}}
+      <button type="button" class="kfp-btn kpe-new" data-action="newItem"><i class="fa-solid fa-plus" inert></i> New</button>
+      {{/if}}
+    </aside>
+
+    <section class="kpe-grid">
+      {{#if empty}}
+      <div class="kpe-empty kfp-muted">
+        <i class="fa-solid fa-bookmark" inert></i>
+        <p>Nothing here yet. Pick any item, change it and press <strong>Save</strong> to make it your own.</p>
+      </div>
+      {{/if}}
+      {{#each cards}}
+      <button type="button" class="kpe-card {{#if selected}}active{{/if}}" data-action="selectItem" data-id="{{id}}" data-search="{{name}} {{description}}" {{#if hidden}}hidden{{/if}} data-tooltip="{{description}}">
+        <span class="kpe-thumb">{{#if thumb}}<img src="{{thumb}}" alt="">{{/if}}</span>
+        <span class="kpe-card-name">{{name}}</span>
+        {{#if badge}}<span class="kpe-card-badge">{{badge}}</span>{{/if}}
+        {{#unless builtin}}<span class="kpe-card-mine"><i class="fa-solid fa-star" inert></i></span>{{/unless}}
+        {{#if edited}}<span class="kpe-card-mine" data-tooltip="Changed in this world"><i class="fa-solid fa-pen" inert></i></span>{{/if}}
+      </button>
+      {{/each}}
+    </section>
+
+    <section class="kpe-editor">
+      {{#if item}}
+      <div class="kpe-editor-head">
+        <div class="kpe-preview" data-preview></div>
+        <div class="kpe-head-fields">
+          <input type="text" name="name" value="{{item.name}}" class="kpe-name" placeholder="Name">
+          <textarea name="description" rows="2" placeholder="Description">{{item.description}}</textarea>
+          <div class="kpe-save">
+            {{#if canSave}}
+            <button type="button" class="kfp-btn kfp-primary kfp-small" data-action="saveItem" data-tooltip="{{#if item.builtin}}Save your changes to this built-in, for this world (everything that uses it changes too; Reset brings back the original){{else}}Save changes{{/if}}"><i class="fa-solid fa-floppy-disk" inert></i> Save</button>
+            <button type="button" class="kfp-btn kfp-small" data-action="saveCopy" data-tooltip="{{#if item.builtin}}Save as a new one of your own (the built-in stays as it is){{else}}Save a copy{{/if}}"><i class="fa-solid fa-clone" inert></i>{{#if item.builtin}} Save as mine{{/if}}</button>
+            {{#if edited}}<button type="button" class="kfp-btn kfp-small" data-action="resetItem" data-tooltip="Bring back the original built-in"><i class="fa-solid fa-arrow-rotate-left" inert></i> Reset</button>{{/if}}
+            {{#unless item.builtin}}<button type="button" class="kfp-btn kfp-small kfp-danger" data-action="deleteItem" data-tooltip="Delete"><i class="fa-solid fa-trash" inert></i></button>{{/unless}}
+            {{/if}}
+            {{#if dirty}}<span class="kpe-unsaved"><i class="fa-solid fa-circle" inert></i> unsaved</span>{{/if}}
+          </div>
+        </div>
+      </div>
+
+      <div class="kpe-editor-scroll">
+        {{#if editor.particles}}
+        <div class="kpe-actions">
+          <button type="button" class="kfp-btn kfp-primary" data-action="spawnOnMap" data-tooltip="Click on the map to place this particle as a token"><i class="fa-solid fa-location-crosshairs" inert></i> Place on map</button>
+          <button type="button" class="kfp-btn" data-action="attachAura" data-tooltip="Draw this look around the selected tokens"><i class="fa-solid fa-sun" inert></i> Aura on selected</button>
+          <button type="button" class="kfp-btn" data-action="removeAuras" data-tooltip="Remove all auras from the selected tokens"><i class="fa-solid fa-eraser" inert></i></button>
+          {{#if isGM}}<button type="button" class="kfp-btn" data-action="bakeImage" data-tooltip="Save this look as an image file"><i class="fa-solid fa-image" inert></i></button>{{/if}}
+        </div>
+
+        <h4 class="kfp-subhead">Kind &amp; colours</h4>
+        <div class="kfp-field"><label>Kind</label>
+          <select name="kind">{{#each editor.kinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Colours</label>
+          <div class="kpe-colors">
+            {{#each editor.palette}}<input type="color" name="palette.{{i}}" value="{{value}}">{{/each}}
+            <button type="button" class="kfp-icon-btn" data-action="randomSeed" data-tooltip="New random pattern (seed {{item.seed}})"><i class="fa-solid fa-dice" inert></i></button>
+          </div>
+        </div>
+        <div class="kpe-palettes">
+          {{#each editor.palettes}}
+          <button type="button" class="kpe-palette" data-action="usePalette" data-palette="{{key}}" data-tooltip="{{key}}" style="background: {{gradient}}" aria-label="{{key}}"></button>
+          {{/each}}
+        </div>
+
+        {{> "modules/kostis-particle-effects/templates/outline-tools.hbs" o=editor.outline}}
+
+        {{#each editor.groups}}
+        <h4 class="kfp-subhead">{{label}}</h4>
+        {{#each fields}}
+        <div class="kfp-field"><label>{{label}}</label>
+          <div class="kfp-range"><input type="range" name="{{key}}" min="{{min}}" max="{{max}}" step="{{step}}" value="{{value}}"><output>{{text}}</output></div>
+        </div>
+        {{/each}}
+        {{/each}}
+
+        <h4 class="kfp-subhead">As a token</h4>
+        <div class="kfp-field"><label>Size (squares)</label><input type="number" name="token.size" min="0.1" max="100" step="0.05" value="{{editor.token.size}}"></div>
+        <div class="kfp-field"><label>Keep upright</label><label class="kpe-check"><input type="checkbox" name="token.lockRotation" {{#if editor.token.lockRotation}}checked{{/if}}> the image doesn't turn with the token</label></div>
+        <div class="kfp-field"><label>Light radius (sq)</label><input type="number" name="token.light.radius" min="0" max="60" step="0.5" value="{{editor.token.light.radius}}"></div>
+        <div class="kfp-field"><label>Light strength</label>
+          <div class="kfp-range"><input type="range" name="token.light.intensity" min="0" max="1" step="0.05" value="{{editor.token.light.intensity}}"><output>{{editor.token.light.intensity}}</output></div>
+        </div>
+        <div class="kfp-field"><label>Light animation</label>
+          <select name="token.light.animation">{{#each editor.lightAnimations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        {{/if}}
+
+        {{#if editor.emitters}}
+        <div class="kpe-actions">
+          <button type="button" class="kfp-btn kfp-primary" data-action="attachEmitter" data-tooltip="Attach to the selected tokens (it follows them everywhere, animations included)"><i class="fa-solid fa-link" inert></i> Attach to selected</button>
+          <button type="button" class="kfp-btn" data-action="removeEmitters" data-tooltip="Remove all emitters from the selected tokens"><i class="fa-solid fa-eraser" inert></i></button>
+          {{#if isGM}}<button type="button" class="kfp-btn" data-action="placeEmitter" data-tooltip="Click on the map to place a fixed emitter (right-click one to remove it)"><i class="fa-solid fa-location-crosshairs" inert></i> Place on map</button>{{/if}}
+          <button type="button" class="kfp-btn" data-action="burstHere" data-tooltip="Play it once at the selected token"><i class="fa-solid fa-burst" inert></i> Test</button>
+        </div>
+        <div class="kfp-field"><label>Particle</label>
+          <select name="particle">{{#each editor.particleOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Spawns</label>
+          <select name="area">{{#each editor.areas}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Then</label>
+          <select name="behavior">{{#each editor.behaviors}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Blend</label>
+          <select name="blend">{{#each editor.blends}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>One-shot</label><label class="kpe-check"><input type="checkbox" name="oneShot" {{#if item.oneShot}}checked{{/if}}> a single burst (impacts, explosions)</label></div>
+        {{#each editor.groups}}
+        <h4 class="kfp-subhead">{{label}}</h4>
+        {{#each fields}}
+        <div class="kfp-field"><label>{{label}}</label>
+          <div class="kfp-range"><input type="range" name="{{key}}" min="{{min}}" max="{{max}}" step="{{step}}" value="{{value}}"><output>{{text}}</output></div>
+        </div>
+        {{/each}}
+        {{/each}}
+        {{/if}}
+
+        {{#if editor.walls}}
+        <div class="kpe-actions">
+          {{#if editor.animator}}
+          <select name="wallTool" data-tooltip="Draw with">{{#each editor.tools}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+          <button type="button" class="kfp-btn kfp-primary" data-action="drawWall" data-tooltip="Draw a wall in this style on the map"><i class="fa-solid fa-pen-nib" inert></i> Draw on map</button>
+          {{/if}}
+          <button type="button" class="kfp-btn" data-action="openWalls" data-tooltip="Every effect wall on this scene"><i class="fa-solid fa-road-barrier" inert></i> Scene walls</button>
+        </div>
+        {{#unless editor.animator}}
+        <p class="kfp-hint"><i class="fa-solid fa-triangle-exclamation" inert></i> Effect walls follow paths drawn with Kostis's Actual Animator: enable it to draw them.</p>
+        {{/unless}}
+        {{> "modules/kostis-particle-effects/templates/wall-editor.hbs" w=editor.w}}
+        {{/if}}
+
+        {{#if editor.effects}}
+        <div class="kpe-actions">
+          <button type="button" class="kfp-btn kfp-primary kfp-big" data-action="castEffect" data-tooltip="Cast from the selected token at your targets"><i class="fa-solid fa-wand-magic-sparkles" inert></i> Cast</button>
+          <span class="kfp-muted kpe-cast-hint">Select the caster, target (T) who it hits, then Cast.</span>
+        </div>
+        {{#unless editor.animator}}
+        <p class="kfp-hint"><i class="fa-solid fa-triangle-exclamation" inert></i> Enable Kostis's Actual Animator to give effects motion paths.</p>
+        {{/unless}}
+        <h4 class="kfp-subhead">What appears</h4>
+        <div class="kfp-field"><label>Particle</label>
+          <select name="particle">{{#each editor.particleOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Size (squares)</label><input type="number" name="size" min="0.1" max="100" step="0.05" value="{{item.size}}" placeholder="particle's own" data-nullable="true"></div>
+        <div class="kfp-field"><label>How many</label><input type="number" name="count" min="1" max="12" step="1" value="{{item.count}}"></div>
+        <div class="kfp-field"><label>Where</label>
+          <select name="spawnAt">{{#each editor.spawnAt}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <h4 class="kfp-subhead">How it moves</h4>
+        <div class="kfp-field"><label>Animation</label>
+          <div class="kpm-inline">
+            <select name="animation" data-nullable="true" {{#unless editor.animator}}disabled{{/unless}}>{{#each editor.templateOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+            <button type="button" class="kfp-icon-btn" data-action="shapeMotion" {{#unless editor.canShapeMotion}}disabled{{/unless}} data-tooltip="Shape this motion by hand: it opens on the map in the animator (at the selected token). Save it as a template there and this effect uses it."><i class="fa-solid fa-bezier-curve" inert></i></button>
+          </div>
+        </div>
+        <div class="kfp-field"><label>Orbits</label>
+          <select name="anchor">{{#each editor.anchors}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Speed ×</label><input type="number" name="rate" min="0.1" max="5" step="0.1" value="{{item.rate}}"></div>
+        <h4 class="kfp-subhead">Extras</h4>
+        <div class="kfp-field"><label>Trail</label>
+          <select name="trail" data-nullable="true">{{#each editor.trailOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Impact</label>
+          <select name="impact" data-nullable="true">{{#each editor.impactOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Caster aura</label>
+          <select name="casterAura" data-nullable="true">{{#each editor.auraOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Controlled by</label>
+          <select name="owners" data-tooltip="Who can move, change and remove the particles it makes">{{#each editor.owners}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        <div class="kfp-field"><label>Lasts</label>
+          <select name="lifetime">{{#each editor.lifetimes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </div>
+        {{#if editor.timed}}
+        <div class="kfp-field"><label>Seconds</label><input type="number" name="seconds" min="1" max="3600" step="1" value="{{item.seconds}}"></div>
+        {{/if}}
+        {{/if}}
+      </div>
+      {{else}}
+      <div class="kpe-empty kfp-muted"><p>Select something on the left.</p></div>
+      {{/if}}
+    </section>
+  </div>
+</div>

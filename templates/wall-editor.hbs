@@ -1,0 +1,99 @@
+{{!-- The wall look / reveal / blocking editor, shared by the studio and the Effect Walls manager. Context: w (wallEditorContext) --}}
+<h4 class="kfp-subhead">Look</h4>
+<div class="kfp-field"><label>Style</label>
+  <select name="look.style">{{#each w.styles}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+</div>
+<div class="kfp-field"><label>Colours</label>
+  <div class="kpe-colors">
+    {{#each w.palette}}<input type="color" name="look.palette.{{i}}" value="{{value}}">{{/each}}
+  </div>
+</div>
+<div class="kpe-palettes">
+  {{#each w.palettes}}<button type="button" class="kpe-palette" data-action="wallPalette" data-palette="{{key}}" data-tooltip="{{key}}" style="background: {{gradient}}" aria-label="{{key}}"></button>{{/each}}
+</div>
+{{#each w.sliders}}
+<div class="kfp-field"><label>{{label}}</label>
+  <div class="kfp-range"><input type="range" name="{{key}}" min="{{min}}" max="{{max}}" step="{{step}}" value="{{value}}"><output>{{text}}</output></div>
+</div>
+{{/each}}
+<div class="kfp-field"><label>Layer</label><label class="kpe-check"><input type="checkbox" name="below" {{#if w.below}}checked{{/if}}> under tokens (off: over them)</label></div>
+
+<h4 class="kfp-subhead">Layers</h4>
+<p class="kfp-hint">More lines along the same path: a ring inside or outside it, or a star across a loop (seals and ritual circles). They follow the path when you reshape it.</p>
+{{#each w.layers}}
+<div class="kpe-layer">
+  <div class="kpe-layer-head">
+    <i class="{{icon}}" inert></i><strong>{{title}}</strong>
+    <button type="button" class="kfp-icon-btn kfp-danger" data-action="removeLayer" data-layer="{{i}}" data-tooltip="Remove this layer"><i class="fa-solid fa-trash" inert></i></button>
+  </div>
+  <div class="kfp-field"><label>Style</label>
+    <select name="look.layers.{{i}}.style">{{#each styles}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+  </div>
+  <div class="kfp-field"><label>Colours</label>
+    <div class="kpe-colors">
+      <label class="kpe-check"><input type="checkbox" name="look.layers.{{i}}.ownColours" {{#if own}}checked{{/if}}> its own</label>
+      {{#if own}}{{#each palette}}<input type="color" name="look.layers.{{../i}}.palette.{{j}}" value="{{value}}">{{/each}}{{/if}}
+    </div>
+  </div>
+  {{#each sliders}}
+  <div class="kfp-field"><label>{{label}}</label>
+    <div class="kfp-range"><input type="range" name="{{key}}" min="{{min}}" max="{{max}}" step="{{step}}" value="{{value}}"><output>{{text}}</output></div>
+  </div>
+  {{/each}}
+</div>
+{{/each}}
+{{#if w.canAddLayer}}
+<div class="kpe-actions">
+  {{#each w.layerKinds}}<button type="button" class="kfp-btn kfp-small" data-action="addLayer" data-kind="{{value}}"><i class="{{icon}}" inert></i> {{label}}</button>{{/each}}
+</div>
+{{/if}}
+
+<h4 class="kfp-subhead">How it appears</h4>
+<div class="kfp-field"><label>Appears</label>
+  <select name="reveal.mode">{{#each w.modes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+</div>
+{{#if w.timed}}
+<div class="kfp-field"><label>Starting</label>
+  <select name="reveal.direction">{{#each w.directions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+</div>
+{{/if}}
+{{#if w.isGrow}}
+<div class="kfp-field"><label>Takes (seconds)</label><input type="number" name="reveal.duration" min="0.1" max="600" step="0.1" value="{{w.reveal.duration}}"></div>
+<div class="kfp-field"><label>Afterwards</label>
+  <select name="reveal.then">{{#each w.thens}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+</div>
+<div class="kfp-field"><label>Hold (seconds)</label><input type="number" name="reveal.hold" min="0" max="600" step="0.1" value="{{w.reveal.hold}}"></div>
+{{#if (eq w.reveal.then "fade")}}
+<div class="kfp-field"><label>Fade (seconds)</label><input type="number" name="reveal.fade" min="0.1" max="600" step="0.1" value="{{w.reveal.fade}}"></div>
+{{/if}}
+{{/if}}
+{{#if w.isTrain}}
+<div class="kfp-field"><label>Train length (sq)</label><input type="number" name="reveal.length" min="0.5" max="200" step="0.5" value="{{w.reveal.length}}"></div>
+<div class="kfp-field"><label>Speed (sq/s)</label><input type="number" name="reveal.speed" min="0.05" max="60" step="0.05" value="{{w.reveal.speed}}"></div>
+<div class="kfp-field"><label>At the end</label>
+  <select name="reveal.then">{{#each w.thens}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+</div>
+{{/if}}
+{{#if w.isFollow}}
+<div class="kfp-field"><label>Token</label>
+  <select name="reveal.token">{{#each w.tokens}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+</div>
+<div class="kfp-field"><label>Trail (squares)</label><input type="number" name="reveal.length" min="0" max="200" step="0.5" value="{{w.reveal.length}}"></div>
+<p class="kfp-hint">0 lights the whole path behind the token and keeps it lit (after one lap, all of it).</p>
+{{/if}}
+
+<h4 class="kfp-subhead">Blocks</h4>
+<div class="kfp-field"><label>Blocks</label>
+  <select name="blocks">{{#each w.blocks}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+</div>
+{{#if w.blocksNote}}
+<p class="kfp-hint"><i class="fa-solid fa-circle-info" inert></i> Real walls are only made while the whole effect stands: with "All at once", or after growing (and staying).</p>
+{{/if}}
+
+<h4 class="kfp-subhead">Particles</h4>
+<div class="kfp-field"><label>Emitter</label>
+  <select name="emitter">{{#each w.emitters}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+</div>
+<div class="kfp-field"><label>Amount</label>
+  <div class="kfp-range"><input type="range" name="emitterRate" min="0" max="200" step="1" value="{{w.emitterRate}}"><output>{{w.emitterRate}}</output></div>
+</div>
